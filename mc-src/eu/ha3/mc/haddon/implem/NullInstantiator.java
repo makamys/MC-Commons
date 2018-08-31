@@ -19,7 +19,7 @@ public final class NullInstantiator implements Instantiator<Object> {
 		try {
 			Class<E> c = (Class<E>)lookupClass(className);
 			if (c != null) {
-				Constructor<E> ctor = c.getDeclaredConstructor((Class[])types);
+				final Constructor<E> ctor = c.getDeclaredConstructor((Class[])types);
 				if (ctor != null) {
 				ctor.setAccessible(true);
 					return new Instantiator<E>() {
