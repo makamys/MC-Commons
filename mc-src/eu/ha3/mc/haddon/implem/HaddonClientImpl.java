@@ -25,7 +25,7 @@ public class HaddonClientImpl implements Client {
 
 	@Override
 	public EntityPlayer getPlayer() {
-		return unsafe().thePlayer;
+		return unsafe().player;
 	}
 	
 	private int getDimensionIndex(int dimensionLevel) {
@@ -43,15 +43,15 @@ public class HaddonClientImpl implements Client {
 			EntityPlayer player = getPlayer();
 			if (player != null) {
 				int dimension = getDimensionIndex(player.dimension);
-				if (server.worldServers != null && dimension >= 0 && dimension < server.worldServers.length) {
-					WorldServer world = server.worldServers[dimension];
+				if (server.worlds != null && dimension >= 0 && dimension < server.worlds.length) {
+					WorldServer world = server.worlds[dimension];
 					if (world != null) {
 						return world.playerEntities; //Hosting/Singleplayer
 					}
 				}
 			}
 		}
-		World theWorld = unsafe().theWorld;
+		World theWorld = unsafe().world;
 		if (theWorld != null) {
 			return theWorld.playerEntities; //Remote
 		}
@@ -61,7 +61,7 @@ public class HaddonClientImpl implements Client {
 
 	@Override
 	public FontRenderer getFontRenderer() {
-		return unsafe().fontRendererObj;
+		return unsafe().fontRenderer;
 	}
 
 	@Override

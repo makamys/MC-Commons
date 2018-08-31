@@ -33,8 +33,8 @@ public class HGuiSliderControl extends GuiButton implements HDisplayStringHolder
 	@Override
 	protected void mouseDragged(Minecraft par1Minecraft, int par2, int par3) {
 		if (visible) { // drawButton
-			int x = xPosition;
-			int y = yPosition;
+			int x = this.x;
+			int y = this.y;
 			int w = width;
 			int h = height;
 			
@@ -64,7 +64,7 @@ public class HGuiSliderControl extends GuiButton implements HDisplayStringHolder
 	@Override
 	public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3) {
 		if (super.mousePressed(par1Minecraft, par2, par3)) {
-			int x = xPosition;
+			int x = this.x;
 			int w = width;
 			float v = (float) (par2 - (x + 4)) / (w - 8);
 			
