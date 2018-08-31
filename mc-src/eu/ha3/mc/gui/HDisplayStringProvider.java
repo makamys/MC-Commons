@@ -1,5 +1,6 @@
 package eu.ha3.mc.gui;
 
+@FunctionalInterface
 public interface HDisplayStringProvider {
-	public String provideDisplayString();
+	String provideDisplayString();
 }

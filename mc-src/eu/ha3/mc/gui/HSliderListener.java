@@ -1,9 +1,14 @@
 package eu.ha3.mc.gui;
 
+@FunctionalInterface
 public interface HSliderListener {
-	public void sliderValueChanged(HGuiSliderControl slider, float value);
+	void sliderValueChanged(HGuiSliderControl slider, float value);
 	
-	public void sliderPressed(HGuiSliderControl hGuiSliderControl);
+	default void sliderPressed(HGuiSliderControl hGuiSliderControl) {
+	    
+	}
 	
-	public void sliderReleased(HGuiSliderControl hGuiSliderControl);
+	default void sliderReleased(HGuiSliderControl hGuiSliderControl) {
+	    
+	}
 }
