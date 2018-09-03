@@ -4,30 +4,30 @@ public interface Haddon {
 	/**
 	 * Triggered during the addon loading process.
 	 */
-	public void onLoad();
-	
+	void onLoad();
+
 	/**
 	 * Returns the utility object dedicated to this haddon.
 	 */
-	public Utility getUtility();
-	
+	Utility getUtility();
+
 	/**
 	 * Sets the utility object dedicated to this haddon.
 	 */
-	public void setUtility(Utility utility);
-	
+	void setUtility(Utility utility);
+
 	/**
 	 * Returns the caster object dedicated to this haddon.
 	 */
-	public Operator getOperator();
-	
+	<T extends Operator> T getOperator();
+
 	/**
 	 * Sets the caster object dedicated to this haddon.
 	 */
-	public void setOperator(Operator operator);
-	
+	void setOperator(Operator operator);
+
 	/**
 	 * Returns the identity of this Haddon.
 	 */
-	public Identity getIdentity();
+	Identity getIdentity();
 }
