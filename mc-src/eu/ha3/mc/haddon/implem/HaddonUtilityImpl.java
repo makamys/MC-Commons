@@ -1,8 +1,6 @@
 package eu.ha3.mc.haddon.implem;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
@@ -18,69 +16,45 @@ import net.minecraft.util.text.event.HoverEvent;
 import org.lwjgl.input.Keyboard;
 
 import eu.ha3.mc.haddon.Client;
-import eu.ha3.mc.haddon.PrivateAccessException;
 import eu.ha3.mc.haddon.Utility;
 
 public abstract class HaddonUtilityImpl implements Utility {
 	private static final int WORLD_HEIGHT = 256;
 	private static final NullInstantiator NULL_INSTANTIATOR = new NullInstantiator();
-	
+
 	private static final HaddonClientImpl client = new HaddonClientImpl();
-	
-	private Map<String, PrivateEntry> getters = new HashMap<String, PrivateEntry>();
-	private Map<String, PrivateEntry> setters = new HashMap<String, PrivateEntry>();
-	
+
 	protected long ticksRan;
 	protected File mcFolder;
 	protected File modsFolder;
-	
+
 	/**
 	 * Initialise reflection (Call the static constructor)
 	 */
 	public HaddonUtilityImpl() {
 		HaddonUtilitySingleton.getInstance();
 	}
-	
-	@Override
-	public void registerPrivateGetter(String name, Class<?> classToPerformOn, int zeroOffsets, String... lessToMoreImportantFieldName) {
-		getters.put(name, new HaddonPrivateEntry(name, classToPerformOn, zeroOffsets, lessToMoreImportantFieldName));
-	}
-	
-	@Override
-	public void registerPrivateSetter(String name, Class<?> classToPerformOn, int zeroOffsets, String... lessToMoreImportantFieldName) {
-		setters.put(name, new HaddonPrivateEntry(name, classToPerformOn, zeroOffsets, lessToMoreImportantFieldName));
-	}
-	
-	@Override
-	public Object getPrivate(Object instance, String name) throws PrivateAccessException {
-		return getters.get(name).get(instance);
-	}
-	
-	@Override
-	public void setPrivate(Object instance, String name, Object value) throws PrivateAccessException {
-		setters.get(name).set(instance, value);
-	}
-	
+
 	@Override
 	public boolean isPresent(String className) {
 		return NULL_INSTANTIATOR.lookupClass(className) != null;
 	}
-	
+
 	@Override
 	public <E> Instantiator<E> getInstantiator(String className, Class<?>... types) {
 		return NULL_INSTANTIATOR.getOrCreate(className, types);
 	}
-	
+
 	@Override
 	public int getWorldHeight() {
 		return WORLD_HEIGHT;
 	}
-	
+
 	@Override
 	public Object getCurrentScreen() {
 		return client.unsafe().currentScreen;
 	}
-	
+
 	@Override
 	public boolean isCurrentScreen(final Class<?> classtype) {
 		Object current = getCurrentScreen();
@@ -88,22 +62,22 @@ public abstract class HaddonUtilityImpl implements Utility {
 		if (current == null) return false;
 		return classtype.isInstance(current);
 	}
-	
+
 	@Override
 	public void displayScreen(Object screen) {
 		client.unsafe().displayGuiScreen((GuiScreen)screen);
 	}
-	
+
 	@Override
 	public void closeCurrentScreen() {
 		displayScreen(null);
 	}
-	
+
 	@Override
 	public Client getClient() {
 		return client;
 	}
-	
+
 	@Override
 	public void pauseSounds(boolean pause) {
 		if (pause) {
@@ -112,7 +86,7 @@ public abstract class HaddonUtilityImpl implements Utility {
 			client.unsafe().getSoundHandler().resumeSounds();
 		}
 	}
-	
+
 	@Override
 	public boolean isGamePaused() {
 		Object current = getCurrentScreen();
@@ -123,11 +97,11 @@ public abstract class HaddonUtilityImpl implements Utility {
 	public boolean isSingleplayer() {
 		return client.unsafe().isSingleplayer() && !client.unsafe().getIntegratedServer().getPublic();
 	}
-	
+
 	@Override
 	public void printChat(Object... args) {
 		if (client.getPlayer() == null) return;
-		
+
 		TextComponentString message = new TextComponentString("");
 		Style style = null;
 		for (Object o : args) {
@@ -186,13 +160,13 @@ public abstract class HaddonUtilityImpl implements Utility {
 				message.appendSibling(line);
 			}
 		}
-		
+
 		client.getPlayer().sendMessage(message);
 	}
-	
+
     /**
      * Merges the given child ChatStyle into the given parent preserving hierarchical inheritance.
-     * 
+     *
      * @param parent	The parent to inherit style information
      * @param child		The child style who's properties will override those in the parent
      */
@@ -212,7 +186,7 @@ public abstract class HaddonUtilityImpl implements Utility {
 		if ((parent.getObfuscated() != child.getObfuscated()) && child.getObfuscated()) {
 			parent.setObfuscated(true);
 		}
-        
+
         Object temp;
         if ((temp = child.getColor()) != null) {
         	parent.setColor((TextFormatting)temp);
@@ -227,7 +201,7 @@ public abstract class HaddonUtilityImpl implements Utility {
         	parent.setInsertion((String)temp);
         }
     }
-	
+
 	@Override
 	public boolean areKeysDown(int... args) {
 		for (int arg : args) {
@@ -235,12 +209,12 @@ public abstract class HaddonUtilityImpl implements Utility {
 		}
 		return true;
 	}
-	
+
 	private ScaledResolution drawString_scaledRes = null;
 	private int drawString_screenWidth;
 	private int drawString_screenHeight;
 	private int drawString_textHeight;
-	
+
 	@Override
 	public void prepareDrawString() {
 		drawString_scaledRes = new ScaledResolution(client.unsafe());
@@ -248,37 +222,37 @@ public abstract class HaddonUtilityImpl implements Utility {
 		drawString_screenHeight = drawString_scaledRes.getScaledHeight();
 		drawString_textHeight = client.getFontRenderer().FONT_HEIGHT;
 	}
-	
+
 	@Override
 	public void drawString(String text, float px, float py, int offx, int offy, char alignment, int cr, int cg, int cb, int ca, boolean hasShadow) {
 		if (drawString_scaledRes == null) prepareDrawString();
-		
+
 		FontRenderer font = client.getFontRenderer();
-		
+
 		int xPos = (int) Math.floor(px * drawString_screenWidth) + offx;
 		int yPos = (int) Math.floor(py * drawString_screenHeight) + offy;
-		
+
 		if (alignment == '2' || alignment == '5' || alignment == '8') {
 			xPos = xPos - font.getStringWidth(text) / 2;
 		} else if (alignment == '3' || alignment == '6' || alignment == '9') {
 			xPos = xPos - font.getStringWidth(text);
 		}
-		
+
 		if (alignment == '4' || alignment == '5' || alignment == '6') {
 			yPos = yPos - drawString_textHeight / 2;
 		} else if (alignment == '1' || alignment == '2' || alignment == '3') {
 			yPos = yPos - drawString_textHeight;
 		}
-		
+
 		int color = ca << 24 | cr << 16 | cg << 8 | cb;
-		
+
 		if (hasShadow) {
 			font.drawStringWithShadow(text, xPos, yPos, color);
 		} else {
 			font.drawString(text, xPos, yPos, color);
 		}
 	}
-	
+
 	@Override
 	public File getModsFolder() {
 		if (modsFolder == null) {
@@ -286,7 +260,7 @@ public abstract class HaddonUtilityImpl implements Utility {
 		}
 		return modsFolder;
 	}
-	
+
 	@Override
 	public File getMcFolder() {
 		if (mcFolder == null) {

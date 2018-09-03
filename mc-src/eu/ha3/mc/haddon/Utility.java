@@ -8,65 +8,6 @@ import eu.ha3.mc.haddon.implem.Instantiator;
  * Basic utility interface for communicating with the game.
  */
 public interface Utility {
-	/**
-	 * Register a Private Access getter on a certain name, that operates on a
-	 * certain Class in a certain Object instance. The last two arguments are
-	 * increasingly of priority: The rightmost argument is evaluated first.<br>
-	 * When used by getPrivate(...):<br>
-	 * The rightmost fieldname (if not null) is used first. If it doesn't work,
-	 * the arguments left to it are used. If everything fails, it uses the
-	 * zeroOffsets, that is the nth field (0th being the first field).
-	 * zeroOffsets is ignored if it is a negative number. If none worked, this
-	 * throws a PrivateAccessException containing the name of that getter.
-	 *
-	 * @param name
-	 * @param classToPerformOn
-	 * @param zeroOffsets
-	 * @param lessToMoreImportantFieldName
-	 */
-    @Deprecated
-	public void registerPrivateGetter(String name, Class<?> classToPerformOn, int zeroOffsets, String... lessToMoreImportantFieldName);
-
-	/**
-	 * Register a Private Access setter on a certain name, that operates on a
-	 * certain Class in a certain Object instance. The last two arguments are
-	 * increasingly of priority: The rightmost argument is evaluated first.<br>
-	 * When used by getPrivate(...):<br>
-	 * The rightmost fieldname (if not null) is used first. If it doesn't work,
-	 * the arguments left to it are used. If everything fails, it uses the
-	 * zeroOffsets, that is the nth field (0th being the first field).
-	 * zeroOffsets is ignored if it is a negative number. If none worked, this
-	 * throws a PrivateAccessException containing the name of that setter.
-	 *
-	 * @param name
-	 * @param classToPerformOn
-	 * @param zeroOffsets
-	 * @param lessToMoreImportantFieldName
-	 */
-    @Deprecated
-	public void registerPrivateSetter(String name, Class<?> classToPerformOn, int zeroOffsets, String... lessToMoreImportantFieldName);
-
-	/**
-	 * Gets a registered Private field
-	 *
-	 * @param instance
-	 * @param name
-	 * @return
-	 * @throws PrivateAccessException
-	 */
-    @Deprecated
-	public Object getPrivate(Object instance, String name) throws PrivateAccessException;
-
-	/**
-	 * Sets a registered Private field
-	 *
-	 * @param instance
-	 * @param name
-	 * @param value
-	 * @throws PrivateAccessException
-	 */
-    @Deprecated
-	public void setPrivate(Object instance, String name, Object value) throws PrivateAccessException;
 
 	/**
 	 * Checks it a given class exists in the current environment.
