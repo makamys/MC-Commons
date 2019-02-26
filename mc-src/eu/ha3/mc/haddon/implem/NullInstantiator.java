@@ -14,7 +14,6 @@ public final class NullInstantiator implements Instantiator<Object> {
 		return null;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <E> Instantiator<E> getOrCreate(String className, Class<?>... types) {
 		try {
 			Class<E> c = (Class<E>)lookupClass(className);

@@ -34,7 +34,6 @@ public class LiteRender extends LiteBase implements OperatorRenderer, RenderList
 		((SupportsRenderEvents) haddon).onSetupCameraTransform();
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void addRenderable(Class renderClass, Object renderable) {
 		ModUtilities.addRenderer(renderClass, (Render) renderable);

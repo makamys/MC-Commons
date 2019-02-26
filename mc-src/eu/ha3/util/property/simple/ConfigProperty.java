@@ -48,7 +48,6 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
 	public boolean save() {
 		try {
 			File userFile = new File(this.path);
-			@SuppressWarnings("serial")
 			Properties props = new Properties() {
 				@Override
 				public synchronized Enumeration<Object> keys() {
