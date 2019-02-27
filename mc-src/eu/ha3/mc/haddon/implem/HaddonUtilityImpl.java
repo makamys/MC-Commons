@@ -32,7 +32,7 @@ public abstract class HaddonUtilityImpl implements Utility {
 	 * Initialise reflection (Call the static constructor)
 	 */
 	public HaddonUtilityImpl() {
-		HaddonUtilitySingleton.getInstance();
+
 	}
 
 	@Override
