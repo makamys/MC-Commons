@@ -50,7 +50,8 @@ public class UpdateNotifier extends Thread implements Updater {
 				if (checkUpdates(i)) return;
 			} catch (Exception e) {
 				log("Exception whilst checking update location: " + i);
-				e.printStackTrace();
+				// TODO fix update checker
+				//e.printStackTrace();
 			}
 		}
 	}
