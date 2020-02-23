@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeSet;
 
+import com.google.common.io.Files;
+
 import eu.ha3.util.property.contract.ConfigSource;
 
 public class ConfigProperty extends VersionnableProperty implements ConfigSource {
@@ -48,6 +50,7 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
 	public boolean save() {
 		try {
 			File userFile = new File(this.path);
+			Files.createParentDirs(userFile);
 			Properties props = new Properties() {
 				@Override
 				public synchronized Enumeration<Object> keys() {
