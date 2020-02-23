@@ -112,14 +112,14 @@ public class ForgeBase implements OperatorCaster
     }
 
     @EventHandler
-    public void init(FMLInitializationEvent event)
+    public void init(FMLInitializationEvent event, String modid, String name, String version)
     {   
         if(MixinLoaderForge.hasInitializedSuccessfully()) {
             MinecraftForge.EVENT_BUS.register(this);
             
             haddon.onLoad();
         } else {
-            System.out.println("Cancelled loading " + haddon.getIdentity().getHaddonName() + ", because the mixins failed to load.");
+            System.out.println("Cancelled loading " + name + " (" + modid + " " + version + "), because the Haddon mixins failed to load.");
         }
     }
 
