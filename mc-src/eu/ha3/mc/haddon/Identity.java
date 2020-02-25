@@ -1,5 +1,7 @@
 package eu.ha3.mc.haddon;
 
+import eu.ha3.mc.haddon.implem.HaddonVersion;
+
 public interface Identity {
 	/**
 	 * Returns the name of the mod. This can include spaces. Do not include the version number.
@@ -7,14 +9,9 @@ public interface Identity {
 	public String getHaddonName();
 	
 	/**
-	 * Returns the version number. Format must be usable for automaton (to compare numbers).
+	 * Returns the version. Format must be usable for automaton (to compare numbers).
 	 */
-	public int getHaddonVersionNumber();
-	
-	/**
-	 * Returns the type of release this version is for.
-	 */
-	public String getHaddonVersionPrefix();
+	public HaddonVersion getHaddonVersion();
 	
 	/**
 	 * Returns Minecraft version this is made for. Format is arbitrary, and

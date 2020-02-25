@@ -2,6 +2,10 @@ package eu.ha3.mc.quick.update;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
@@ -13,6 +17,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import eu.ha3.mc.haddon.implem.HaddonVersion;
 import eu.ha3.mc.quick.chat.Chatter;
 import eu.ha3.util.property.simple.ConfigProperty;
 
@@ -27,7 +32,7 @@ public class UpdateNotifier extends Thread implements Updater {
 	private final NotifiableHaddon haddon;
 	private final String[] queryLocations;
 	
-	private int lastFound;
+	private HaddonVersion lastFound;
 	
 	private int displayCount = 3;
 	private int displayRemaining = 0;
@@ -36,7 +41,7 @@ public class UpdateNotifier extends Thread implements Updater {
 	public UpdateNotifier(NotifiableHaddon mod, String... queries) {
 		haddon = mod;
 		queryLocations = queries;
-		lastFound = mod.getIdentity().getHaddonVersionNumber();
+		lastFound = mod.getIdentity().getHaddonVersion();
 	}
 	
 	public void attempt() {
@@ -50,44 +55,38 @@ public class UpdateNotifier extends Thread implements Updater {
 				if (checkUpdates(i)) return;
 			} catch (Exception e) {
 				log("Exception whilst checking update location: " + i);
-				// TODO fix update checker
 				//e.printStackTrace();
 			}
 		}
 	}
 	
 	private boolean checkUpdates(String queryLoc) throws Exception {
-		final int currentVersionNumber = haddon.getIdentity().getHaddonVersionNumber();
-		final String currentVersionType = haddon.getIdentity().getHaddonVersionPrefix();
-		
-		URL url = new URL(String.format(queryLoc, currentVersionNumber, currentVersionType));
+	    HaddonVersion currentVersion = haddon.getIdentity().getHaddonVersion();
+	    
+		URL url = new URL(queryLoc);
 		InputStream contents = url.openStream();
 		
-		int solvedVersion = 0;
-		String solvedVersionType = "r";
+		HaddonVersion solvedVersion = null;
 		String solvedMinecraftVersion = "";
 		String jasonString = IOUtils.toString(contents, "UTF-8");
 		
 		JsonObject jason = new JsonParser().parse(jasonString).getAsJsonObject();
-		JsonArray versions = jason.get("versions").getAsJsonArray();
-		for (JsonElement element : versions.getAsJsonArray()) {
-			JsonObject o = element.getAsJsonObject();
-			int vn = o.get("number").getAsInt();
-			if (vn > solvedVersion) {
-				solvedVersion = vn;
-				if (o.has("for")) {
-					solvedMinecraftVersion = o.get("for").getAsString();
-				}
-				if (o.has("type")) {
-					solvedVersionType = o.get("type").getAsString();
-				}
-			}
+		
+		JsonElement versionsElem = jason.get(haddon.getIdentity().getHaddonMinecraftVersion());
+		if(versionsElem == null) { // no versions for this MC version
+		    log("Update JSON contains no entries for current Minecraft version. Malformed JSON file?");
+		    return false;
+		} else {
+		    JsonObject versions = versionsElem.getAsJsonObject();
+		    List<HaddonVersion> availableVersions = versions.entrySet().stream()
+		            .map(name -> new HaddonVersion(name.getKey())).collect(Collectors.toList());
+		    solvedVersion = Collections.max(availableVersions); 
 		}
 		
-		log("Update version found: " + solvedVersion + " (running " + currentVersionNumber + ")");
+		log("Update version found: " + solvedVersion + " (running " + currentVersion + ")");
 		Thread.sleep(10000);
 		
-		if (solvedVersion > currentVersionNumber || (solvedVersion >= currentVersionNumber && !solvedVersionType.contentEquals(currentVersionType))) {
+		if (solvedVersion.compareTo(currentVersion) > 0) {
 			ConfigProperty config = haddon.getConfig();
 			
 			boolean needsSave = false;
@@ -102,8 +101,8 @@ public class UpdateNotifier extends Thread implements Updater {
 			
 			if (displayRemaining > 0) {
 				config.setProperty("update.display.remaining", --displayRemaining);
-				int vc = solvedVersion - currentVersionNumber;
-				reportUpdate(solvedMinecraftVersion, solvedVersionType, solvedVersion, vc == 0 ? 1 : vc);
+				int vc = solvedVersion.getMajorVersion() - currentVersion.getMajorVersion();
+				reportUpdate(solvedMinecraftVersion, solvedVersion, vc);
 				needsSave = true;
 			}
 			
@@ -117,19 +116,21 @@ public class UpdateNotifier extends Thread implements Updater {
 		return false;
 	}
 	
-	private void reportUpdate(String solvedMC, String solvedType, int solved, int count) {
+	private void reportUpdate(String solvedMC, HaddonVersion solved, int count) {
 		Chatter chatter = haddon.getChatter();
 		if (solvedMC.equals("")) {
-			chatter.printChat(TextFormatting.GOLD, "An update is available: ", solvedType + solved);
+			chatter.printChat(TextFormatting.GOLD, "An update is available: ", solved);
 		} else if (solvedMC.equals(haddon.getIdentity().getHaddonMinecraftVersion())) {
-			chatter.printChat(TextFormatting.GOLD, "An update is available for your version of Minecraft: ", solvedType + solved);
+			chatter.printChat(TextFormatting.GOLD, "An update is available for your version of Minecraft: ", solved);
 		} else {
 			chatter.printChat(
 					TextFormatting.GOLD, "An update is available for ",
 					TextFormatting.GOLD, TextFormatting.ITALIC, "another",
-					TextFormatting.GOLD, " version of Minecraft: ", solvedType + solved + " for " + solvedMC);
+					TextFormatting.GOLD, " version of Minecraft: ", solved + " for " + solvedMC);
 		}
-		chatter.printChatShort(TextFormatting.GOLD, "You're ", TextFormatting.WHITE, count, TextFormatting.GOLD, " version" + (count > 1 ? "s" : "") + " late.");
+		if(count > 0) {
+		    chatter.printChatShort(TextFormatting.GOLD, "You're ", TextFormatting.WHITE, count, TextFormatting.GOLD, " major version" + (count > 1 ? "s" : "") + " late.");
+		}
 		chatter.printChatShort(TextFormatting.UNDERLINE, new ClickEvent(ClickEvent.Action.OPEN_URL, haddon.getIdentity().getHaddonAddress()), haddon.getIdentity().getHaddonAddress());
 		
 		if (displayRemaining > 0) {
@@ -148,14 +149,14 @@ public class UpdateNotifier extends Thread implements Updater {
 	
 	public void fillDefaults(ConfigProperty configuration) {
 		configuration.setProperty("update.enabled", true);
-		configuration.setProperty("update.version", haddon.getIdentity().getHaddonVersionNumber());
+		configuration.setProperty("update.version", haddon.getIdentity().getHaddonVersion());
 		configuration.setProperty("update.display.remaining", 0);
 		configuration.setProperty("update.display.count", 3);
 	}
 	
 	public void loadConfig(ConfigProperty configuration) {
 		enabled = configuration.getBoolean("update.enabled");
-		lastFound = configuration.getInteger("update.version");
+		lastFound = new HaddonVersion(configuration.getString("update.version"));
 		displayRemaining = configuration.getInteger("update.display.remaining");
 		displayCount = configuration.getInteger("update.display.count");
 	}

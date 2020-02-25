@@ -5,24 +5,20 @@ import eu.ha3.mc.haddon.Identity;
 public class HaddonIdentity implements Identity {
 	protected final String NAME;
 	
-	protected final int VERSION;
+	protected final HaddonVersion VERSION;
 	protected final String MCVERSION;
 	protected final String ADDRESS;
 	
-	protected String PREFIX;
-	
 	public HaddonIdentity(String name, int version, String mc, String address) {
-		NAME = name;
-		VERSION = version;
-		MCVERSION = mc;
-		ADDRESS = address;
-		PREFIX = "r";
+		this(name, new HaddonVersion(version), mc, address);
 	}
 	
-	public HaddonIdentity setPrefix(String prefix) {
-		PREFIX = prefix;
-		return this;
-	}
+   public HaddonIdentity(String name, HaddonVersion version, String mc, String address) {
+        NAME = name;
+        VERSION = version;
+        MCVERSION = mc;
+        ADDRESS = address;
+    }
 	
 	@Override
 	public String getHaddonName() {
@@ -30,13 +26,13 @@ public class HaddonIdentity implements Identity {
 	}
 	
 	@Override
-	public int getHaddonVersionNumber() {
+	public HaddonVersion getHaddonVersion() {
 		return VERSION;
 	}
 	
 	@Override
 	public String getHaddonMinecraftVersion() {
-		return MCVERSION;
+		return MCVERSION.toString();
 	}
 	
 	@Override
@@ -46,10 +42,6 @@ public class HaddonIdentity implements Identity {
 	
 	@Override
 	public String getHaddonHumanVersion() {
-		return getHaddonVersionPrefix() + getHaddonVersionNumber() + " for " + getHaddonMinecraftVersion();
-	}
-	
-	public String getHaddonVersionPrefix() {
-		return PREFIX;
+		return getHaddonVersion() + " for " + getHaddonMinecraftVersion();
 	}
 }
