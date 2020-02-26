@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 import net.minecraft.util.text.TextFormatting;
@@ -35,11 +37,17 @@ import eu.ha3.util.property.simple.PropertyException;
  * @author Hurry
  * 
  */
-public class UpdateNotifier extends Thread implements Updater {
+public class UpdateNotifier implements Updater {
 	
 	private final NotifiableHaddon notifiableHaddon;
+	
+	/*** Job queue for the update checker thread */
 	private Queue<UpdatableIdentity> thingsToUpdateCheck = new LinkedList<UpdatableIdentity>();
+	
+	/*** Things that have already been update checked in this Minecraft session, and should not be checked again */
 	private Set<UpdatableIdentity> thingsUpdateChecked = new HashSet<UpdatableIdentity>();
+	
+	boolean hasRun;
 	
 	private int displayCount = 3;
 	private boolean enabled = true;
@@ -51,20 +59,36 @@ public class UpdateNotifier extends Thread implements Updater {
 	}
 	
 	public void attempt() {
-		if (enabled) start();
+		if (enabled) {
+		    Queue<UpdatableIdentity> batch = thingsToUpdateCheck;
+		    thingsToUpdateCheck = new LinkedList<UpdatableIdentity>();
+		    new Thread(() -> checkForUpdates(batch)).start();
+		    
+		    hasRun = true;
+		}
 	}
 	
-	public void addJob(UpdatableIdentity identity) {
-	    if(!thingsUpdateChecked.contains(identity)) {
-	        thingsUpdateChecked.add(identity);
-	        thingsToUpdateCheck.add(identity);
+	private boolean canBeUpdateChecked(UpdatableIdentity identity) {
+	    return identity.getUniqueName() != null && !identity.getUniqueName().equals("") &&
+	            identity.getHaddonVersion() != null &&
+	            identity.getUpdateURLs() != null && !identity.getUpdateURLs().isEmpty();
+	}
+	
+	private void checkForUpdates(Queue<UpdatableIdentity> batch) {
+	    for(UpdatableIdentity id : batch) {
+	        checkUpdates(id);
 	    }
 	}
 	
-	@Override
-	public void run() {
-	    while(!thingsToUpdateCheck.isEmpty()) {
-	        checkUpdates(thingsToUpdateCheck.remove());
+	public void addJob(UpdatableIdentity identity) {
+	    if(canBeUpdateChecked(identity)) {
+    	    if(!thingsUpdateChecked.contains(identity)) {
+    	        thingsUpdateChecked.add(identity);
+    	        thingsToUpdateCheck.add(identity);
+    	    }
+	    }
+	    if(!thingsToUpdateCheck.isEmpty() && hasRun) {
+	        attempt();
 	    }
 	}
 	
@@ -93,7 +117,7 @@ public class UpdateNotifier extends Thread implements Updater {
 		
 		JsonObject jason = new JsonParser().parse(jasonString).getAsJsonObject();
 		
-		JsonElement versionsElem = jason.get(id.getHaddonMinecraftVersion());
+		JsonElement versionsElem = jason.get(notifiableHaddon.getIdentity().getHaddonMinecraftVersion());
 		if(versionsElem == null) { // no versions for this MC version
 		    log("Update JSON contains no entries for current Minecraft version. Malformed JSON file?");
 		    return false;
@@ -122,7 +146,7 @@ public class UpdateNotifier extends Thread implements Updater {
 			} catch(PropertyException e) {};
 			
 			boolean needsSave = false;
-			if (solvedVersion != lastFound) {
+			if (!solvedVersion.equals(lastFound)) {
 				lastFound = solvedVersion;
 				displayRemaining = displayCount;
 				
@@ -148,7 +172,7 @@ public class UpdateNotifier extends Thread implements Updater {
 		return false;
 	}
 	
-	private void reportUpdate(UpdatableIdentity id, String solvedMC, HaddonVersion solved, int count, int displayRemaining) {
+	private synchronized void reportUpdate(UpdatableIdentity id, String solvedMC, HaddonVersion solved, int count, int displayRemaining) {
 		Chatter chatter = notifiableHaddon.getChatter();
 		if (solvedMC.equals("")) {
 			chatter.printChat(TextFormatting.GOLD, "An update is available for " + id.getHaddonName() + ": ", solved);

@@ -47,4 +47,13 @@ public class HaddonVersion implements Comparable<HaddonVersion>{
         return String.join(".", Arrays.stream(components).boxed().map(x -> String.valueOf(x)).collect(Collectors.toList()));
     }
     
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof HaddonVersion) {
+            HaddonVersion o = (HaddonVersion)obj;
+            return Arrays.equals(components, o.components);
+        }
+        return super.equals(obj);
+    }
+    
 }
