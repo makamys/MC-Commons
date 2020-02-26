@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
  */
 public class HaddonVersion implements Comparable<HaddonVersion>{
     
+    public static final HaddonVersion NO_VERSION = new HaddonVersion(-1);
+    
     private final int[] components;
     
     public HaddonVersion(String versionString) {
@@ -17,7 +19,11 @@ public class HaddonVersion implements Comparable<HaddonVersion>{
     }
     
     public HaddonVersion(int... components) {
-        this.components = components;
+        if(components.length == 0) {
+            this.components = new int[] {-1};
+        } else {
+            this.components = components;
+        }
     }
 
     @Override
@@ -54,6 +60,11 @@ public class HaddonVersion implements Comparable<HaddonVersion>{
             return Arrays.equals(components, o.components);
         }
         return super.equals(obj);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(components);
     }
     
 }

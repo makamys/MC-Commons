@@ -32,5 +32,15 @@ public class UpdatableHaddonIdentity extends HaddonIdentity implements Updatable
     public List<String> getUpdateURLs() {
         return updateURLs;
     }
+    
+    @Override
+    public String getPlatformName() {
+        return "Minecraft";
+    }
+
+    @Override
+    public HaddonVersion getPlatformVersion() {
+        return new HaddonVersion(getHaddonMinecraftVersion());
+    }
 
 }
