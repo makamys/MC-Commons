@@ -21,6 +21,7 @@ import eu.ha3.mc.haddon.forge.mixin.IMinecraft;
 import eu.ha3.mc.haddon.Haddon;
 import eu.ha3.mc.haddon.OperatorCaster;
 import eu.ha3.mc.haddon.implem.HaddonUtilityImpl;
+import eu.ha3.mc.haddon.supporting.SupportsInGameChangeEvents;
 import eu.ha3.mc.haddon.supporting.SupportsFrameEvents;
 import eu.ha3.mc.haddon.supporting.SupportsPlayerFrameEvents;
 import eu.ha3.mc.haddon.supporting.SupportsTickEvents;
@@ -35,12 +36,14 @@ public class ForgeBase implements OperatorCaster
     protected final boolean suTick;
     protected final boolean suFrame;
     protected final boolean suFrameP;
+    protected final boolean suInGame;
     
     protected int tickCounter;
     protected boolean enableTick;
     protected boolean enableFrame;
     
     private int ticksSinceLastRender = 0;
+    private boolean wasInGame;
     
     public ForgeBase(Haddon haddon) {
         if(MixinLoaderForge.hasInitializedSuccessfully()) {
@@ -48,6 +51,7 @@ public class ForgeBase implements OperatorCaster
             suTick = haddon instanceof SupportsTickEvents;
             suFrame = haddon instanceof SupportsFrameEvents;
             suFrameP = haddon instanceof SupportsPlayerFrameEvents;
+            suInGame = haddon instanceof SupportsInGameChangeEvents;
             
             shouldTick = suTick || suFrame;
             
@@ -60,7 +64,7 @@ public class ForgeBase implements OperatorCaster
             haddon.setOperator(this);
         } else {
             this.haddon = null;
-            shouldTick = suTick = suFrame = suFrameP = false;
+            shouldTick = suTick = suFrame = suFrameP = suInGame = false;
         }
     }
 
@@ -92,6 +96,13 @@ public class ForgeBase implements OperatorCaster
     }
     
     private void onTickLiteLoaderStyle(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
+        if(inGame != wasInGame) {
+            if(suInGame) {
+                ((SupportsInGameChangeEvents)haddon).onInGameChange(inGame);
+            }
+        }
+        wasInGame = inGame;
+        
         if (!shouldTick || !inGame) return;
         if (enableTick && clock) {
             if (suTick) {

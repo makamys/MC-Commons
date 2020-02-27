@@ -14,6 +14,7 @@ import eu.ha3.mc.haddon.Haddon;
 import eu.ha3.mc.haddon.OperatorCaster;
 import eu.ha3.mc.haddon.implem.HaddonUtilityImpl;
 import eu.ha3.mc.haddon.supporting.SupportsFrameEvents;
+import eu.ha3.mc.haddon.supporting.SupportsInGameChangeEvents;
 import eu.ha3.mc.haddon.supporting.SupportsPlayerFrameEvents;
 import eu.ha3.mc.haddon.supporting.SupportsTickEvents;
 
@@ -23,16 +24,20 @@ public class LiteBase implements LiteMod, Tickable, InitCompleteListener, Operat
 	protected final boolean suTick;
 	protected final boolean suFrame;
 	protected final boolean suFrameP;
+	protected final boolean suInGame;
 	
 	protected int tickCounter;
 	protected boolean enableTick;
 	protected boolean enableFrame;
+	
+	private boolean wasInGame;
 	
 	public LiteBase(Haddon haddon) {
 		this.haddon = haddon;
 		suTick = haddon instanceof SupportsTickEvents;
 		suFrame = haddon instanceof SupportsFrameEvents;
 		suFrameP = haddon instanceof SupportsPlayerFrameEvents;
+		suInGame = haddon instanceof SupportsInGameChangeEvents;
 		
 		shouldTick = suTick || suFrame;
 		
@@ -70,6 +75,13 @@ public class LiteBase implements LiteMod, Tickable, InitCompleteListener, Operat
 	
 	@Override
 	public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
+	    if(inGame != wasInGame) {
+            if(suInGame) {
+                ((SupportsInGameChangeEvents)haddon).onInGameChange(inGame);
+            }
+        }
+        wasInGame = inGame;
+        
 		if (!shouldTick || !inGame) return;
 		if (enableTick && clock) {
 			if (suTick) {
