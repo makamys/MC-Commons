@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.profiler.Profiler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -15,12 +16,15 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
+import java.util.List;
+
 import org.apache.logging.log4j.Logger;
 
 import eu.ha3.mc.haddon.forge.mixin.IMinecraft;
 import eu.ha3.mc.haddon.Haddon;
 import eu.ha3.mc.haddon.OperatorCaster;
 import eu.ha3.mc.haddon.implem.HaddonUtilityImpl;
+import eu.ha3.mc.haddon.implem.ProfilerHelper;
 import eu.ha3.mc.haddon.supporting.SupportsInGameChangeEvents;
 import eu.ha3.mc.haddon.supporting.SupportsFrameEvents;
 import eu.ha3.mc.haddon.supporting.SupportsPlayerFrameEvents;
@@ -104,6 +108,11 @@ public class ForgeBase implements OperatorCaster
         wasInGame = inGame;
         
         if (!shouldTick || !inGame) return;
+        
+        Profiler p = Minecraft.getMinecraft().profiler;
+        List<String> profilerSections = ProfilerHelper.goToRoot(p);
+        p.startSection(haddon.getIdentity().getHaddonName());
+        
         if (enableTick && clock) {
             if (suTick) {
                 ((SupportsTickEvents)haddon).onTick();
@@ -120,6 +129,9 @@ public class ForgeBase implements OperatorCaster
                 }
             }
         }
+        
+        p.endSection();
+        ProfilerHelper.startNestedSection(p, profilerSections);
     }
 
     @EventHandler
