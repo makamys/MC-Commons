@@ -9,11 +9,15 @@ public class HaddonIdentity implements Identity {
 	protected final String MCVERSION;
 	protected final String ADDRESS;
 	
+    public HaddonIdentity(String name, String version, String mc, String address) {
+        this(name, new HaddonVersion(version), mc, address);
+    }
+	
 	public HaddonIdentity(String name, int version, String mc, String address) {
 		this(name, new HaddonVersion(version), mc, address);
 	}
 	
-   public HaddonIdentity(String name, HaddonVersion version, String mc, String address) {
+    public HaddonIdentity(String name, HaddonVersion version, String mc, String address) {
         NAME = name;
         VERSION = version;
         MCVERSION = mc;
