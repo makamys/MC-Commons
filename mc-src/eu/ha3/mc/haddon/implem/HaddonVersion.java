@@ -1,10 +1,11 @@
 package eu.ha3.mc.haddon.implem;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /***
- * A comparable version type, represented as a series of numbers separated by dots.
+ * A comparable version type, represented as a series of numbers separated by dots or dashes.
  * @author makamys
  *
  */
@@ -12,13 +13,20 @@ public class HaddonVersion implements Comparable<HaddonVersion>{
     
     public static final HaddonVersion NO_VERSION = new HaddonVersion(-1);
     
+    Optional<String> stringRepresentation;
+    
     private final int[] components;
     
     public HaddonVersion(String versionString) {
-        this(Arrays.stream(versionString.split("\\.")).mapToInt(x -> Integer.parseInt(x)).toArray());
+        this(Optional.of(versionString), Arrays.stream(versionString.split("\\.|-")).mapToInt(x -> Integer.parseInt(x)).toArray());
     }
     
     public HaddonVersion(int... components) {
+        this(Optional.empty(), components);
+    }
+    
+    public HaddonVersion(Optional<String> stringRepresentation, int... components) {
+        this.stringRepresentation = stringRepresentation;
         if(components.length == 0) {
             this.components = new int[] {-1};
         } else {
@@ -50,7 +58,7 @@ public class HaddonVersion implements Comparable<HaddonVersion>{
     
     @Override
     public String toString() {
-        return String.join(".", Arrays.stream(components).boxed().map(x -> String.valueOf(x)).collect(Collectors.toList()));
+        return stringRepresentation.orElse(String.join(".", Arrays.stream(components).boxed().map(x -> String.valueOf(x)).collect(Collectors.toList())));
     }
     
     @Override
