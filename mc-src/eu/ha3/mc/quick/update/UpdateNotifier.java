@@ -60,9 +60,14 @@ public class UpdateNotifier implements Updater {
 	private boolean enabled = true;
 	
 	public UpdateNotifier(NotifiableHaddon mod, String... queries) {
+        this(mod, mod.getIdentity().getHaddonVersion(), queries);
+    }
+	
+	public UpdateNotifier(NotifiableHaddon mod, HaddonVersion currentVersion, String... queries) {
 	    notifiableHaddon = mod;
 		
-		addJob(new UpdatableHaddonIdentity(mod.getIdentity(), UpdatableHaddonIdentity.MOD, new ArrayList<String>(Arrays.asList(queries))),
+		addJob(new UpdatableHaddonIdentity(mod.getIdentity(), currentVersion, UpdatableHaddonIdentity.MOD,
+		        new ArrayList<String>(Arrays.asList(queries))),
 		        new HaddonVersion(mod.getIdentity().getHaddonMinecraftVersion()));
 	}
 	

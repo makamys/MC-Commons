@@ -13,8 +13,8 @@ public class UpdatableHaddonIdentity extends HaddonIdentity implements Updatable
     protected final String uniqueName;
     protected final List<String> updateURLs;
     
-    public UpdatableHaddonIdentity(Identity id, String uniqueName, List<String> updateURLs) {
-        this(id.getHaddonName(), id.getHaddonVersion(), id.getHaddonMinecraftVersion(), id.getHaddonAddress(), uniqueName, updateURLs);
+    public UpdatableHaddonIdentity(Identity id, HaddonVersion version, String uniqueName, List<String> updateURLs) {
+        this(id.getHaddonName(), version, id.getHaddonMinecraftVersion(), id.getHaddonAddress(), uniqueName, updateURLs);
     }
     
     public UpdatableHaddonIdentity(String name, HaddonVersion version, String mc, String address, String uniqueName, List<String> updateURLs) {
