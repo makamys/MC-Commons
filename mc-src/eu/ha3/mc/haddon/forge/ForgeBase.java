@@ -50,26 +50,21 @@ public class ForgeBase implements OperatorCaster
     private boolean wasInGame;
     
     public ForgeBase(Haddon haddon) {
-        if(MixinLoaderForge.hasInitializedSuccessfully()) {
-            this.haddon = haddon;
-            suTick = haddon instanceof SupportsTickEvents;
-            suFrame = haddon instanceof SupportsFrameEvents;
-            suFrameP = haddon instanceof SupportsPlayerFrameEvents;
-            suInGame = haddon instanceof SupportsInGameChangeEvents;
-            
-            shouldTick = suTick || suFrame;
-            
-            haddon.setUtility(new HaddonUtilityImpl() {
-                @Override
-                public long getClientTick() {
-                    return getTicks();
-                }
-            });
-            haddon.setOperator(this);
-        } else {
-            this.haddon = null;
-            shouldTick = suTick = suFrame = suFrameP = suInGame = false;
-        }
+        this.haddon = haddon;
+        suTick = haddon instanceof SupportsTickEvents;
+        suFrame = haddon instanceof SupportsFrameEvents;
+        suFrameP = haddon instanceof SupportsPlayerFrameEvents;
+        suInGame = haddon instanceof SupportsInGameChangeEvents;
+        
+        shouldTick = suTick || suFrame;
+        
+        haddon.setUtility(new HaddonUtilityImpl() {
+            @Override
+            public long getClientTick() {
+                return getTicks();
+            }
+        });
+        haddon.setOperator(this);
     }
 
     @EventHandler
@@ -137,13 +132,9 @@ public class ForgeBase implements OperatorCaster
     @EventHandler
     public void init(FMLInitializationEvent event, String modid, String name, String version)
     {   
-        if(MixinLoaderForge.hasInitializedSuccessfully()) {
-            MinecraftForge.EVENT_BUS.register(this);
-            
-            haddon.onLoad();
-        } else {
-            System.out.println("Cancelled loading " + name + " (" + modid + " " + version + "), because the Haddon mixins failed to load.");
-        }
+        MinecraftForge.EVENT_BUS.register(this);
+        
+        haddon.onLoad();
     }
 
     @Override
