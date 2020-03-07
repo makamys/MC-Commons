@@ -2,10 +2,10 @@ package eu.ha3.mc.haddon.forge;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import cpw.mods.fml.client.registry.ClientRegistry;
 import eu.ha3.mc.haddon.Haddon;
 import eu.ha3.mc.haddon.OperatorKeyer;
 

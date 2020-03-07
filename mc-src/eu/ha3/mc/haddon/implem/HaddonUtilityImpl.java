@@ -5,13 +5,13 @@ import java.io.File;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.event.ClickEvent;
+import net.minecraft.event.HoverEvent;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 
 import org.lwjgl.input.Keyboard;
 
@@ -102,13 +102,13 @@ public abstract class HaddonUtilityImpl implements Utility {
 	public void printChat(Object... args) {
 		if (client.getPlayer() == null) return;
 
-		TextComponentString message = new TextComponentString("");
-		Style style = null;
+		ChatComponentText message = new ChatComponentText("");
+		ChatStyle style = null;
 		for (Object o : args) {
-			if (o instanceof TextFormatting) {
-				TextFormatting code = (TextFormatting)o;
+			if (o instanceof EnumChatFormatting) {
+			    EnumChatFormatting code = (EnumChatFormatting)o;
 				if (style == null) {
-					style = new Style();
+					style = new ChatStyle();
 				}
 				switch (code) {
 					case OBFUSCATED:
@@ -133,35 +133,35 @@ public abstract class HaddonUtilityImpl implements Utility {
 						style.setColor(code);
 				}
 			} else if (o instanceof ClickEvent) {
-				if (style == null) style = new Style();
-				style.setClickEvent((ClickEvent)o);
+				if (style == null) style = new ChatStyle();
+				style.setChatClickEvent((ClickEvent)o);
 			} else if (o instanceof HoverEvent) {
-				if (style == null) style = new Style();
-				style.setHoverEvent((HoverEvent)o);
-			} else if (o instanceof ITextComponent) {
+				if (style == null) style = new ChatStyle();
+				style.setChatHoverEvent((HoverEvent)o);
+			} else if (o instanceof IChatComponent) {
 				if (style != null) {
-					((ITextComponent)o).setStyle(style);
+					((IChatComponent)o).setChatStyle(style);
 					style = null;
 				}
-				message.appendSibling((ITextComponent)o);
-			} else if (o instanceof Style) {
-				if (!((Style)o).isEmpty()) {
+				message.appendSibling((IChatComponent)o);
+			} else if (o instanceof ChatStyle) {
+				if (!((ChatStyle)o).isEmpty()) {
 					if (style != null) {
-						inheritFlat((Style)o, style);
+						inheritFlat((ChatStyle)o, style);
 					}
-					style = ((Style)o);
+					style = ((ChatStyle)o);
 				}
 			} else {
-				ITextComponent line = o instanceof String ? new TextComponentTranslation((String)o) : new TextComponentString(String.valueOf(o));
+				IChatComponent line = o instanceof String ? new ChatComponentTranslation((String)o) : new ChatComponentText(String.valueOf(o));
 				if (style != null) {
-					line.setStyle(style);
+					line.setChatStyle(style);
 					style = null;
 				}
 				message.appendSibling(line);
 			}
 		}
 
-		client.getPlayer().sendMessage(message);
+		client.getPlayer().addChatMessage(message); // XXX is this correct?
 	}
 
     /**
@@ -170,7 +170,7 @@ public abstract class HaddonUtilityImpl implements Utility {
      * @param parent	The parent to inherit style information
      * @param child		The child style who's properties will override those in the parent
      */
-    private void inheritFlat(Style parent, Style child) {
+    private void inheritFlat(ChatStyle parent, ChatStyle child) {
 		if ((parent.getBold() != child.getBold()) && child.getBold()) {
 			parent.setBold(true);
 		}
@@ -189,17 +189,17 @@ public abstract class HaddonUtilityImpl implements Utility {
 
         Object temp;
         if ((temp = child.getColor()) != null) {
-        	parent.setColor((TextFormatting)temp);
+        	parent.setColor((EnumChatFormatting)temp);
         }
-        if ((temp = child.getClickEvent()) != null) {
-        	parent.setClickEvent((ClickEvent)temp);
+        if ((temp = child.getChatClickEvent()) != null) {
+        	parent.setChatClickEvent((ClickEvent)temp);
         }
-        if ((temp = child.getHoverEvent()) != null) {
-        	parent.setHoverEvent((HoverEvent)temp);
+        if ((temp = child.getChatHoverEvent()) != null) {
+        	parent.setChatHoverEvent((HoverEvent)temp);
         }
-        if ((temp = child.getInsertion()) != null) {
+        /*if ((temp = child.getInsertion()) != null) { // 1.12.2 only?
         	parent.setInsertion((String)temp);
-        }
+        }*/
     }
 
 	@Override
@@ -217,7 +217,7 @@ public abstract class HaddonUtilityImpl implements Utility {
 
 	@Override
 	public void prepareDrawString() {
-		drawString_scaledRes = new ScaledResolution(client.unsafe());
+		drawString_scaledRes = new ScaledResolution(client.unsafe(), client.unsafe().displayWidth, client.unsafe().displayHeight);
 		drawString_screenWidth = drawString_scaledRes.getScaledWidth();
 		drawString_screenHeight = drawString_scaledRes.getScaledHeight();
 		drawString_textHeight = client.getFontRenderer().FONT_HEIGHT;
@@ -264,7 +264,7 @@ public abstract class HaddonUtilityImpl implements Utility {
 	@Override
 	public File getMcFolder() {
 		if (mcFolder == null) {
-			mcFolder = client.unsafe().gameDir;
+			mcFolder = client.unsafe().mcDataDir;
 		}
 		return mcFolder;
 	}

@@ -47,7 +47,7 @@ public abstract class Ha3Scroller {
 	public void routine() {
 		if (isRunning) {
 			doRoutineBefore();
-			pitchGlobal = minecraft.player.rotationPitch;
+			pitchGlobal = minecraft.thePlayer.rotationPitch;
 			doRoutineAfter();
 		}
 	}
@@ -55,7 +55,7 @@ public abstract class Ha3Scroller {
 	public void start() {
 		if (isRunning) {
 			isRunning = true;
-			pitchBase = minecraft.player.rotationPitch;
+			pitchBase = minecraft.thePlayer.rotationPitch;
 			doStart();
 		}
 	}

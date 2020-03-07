@@ -18,9 +18,6 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.event.ClickEvent;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -35,6 +32,8 @@ import eu.ha3.mc.haddon.implem.UpdatableHaddonIdentity;
 import eu.ha3.mc.quick.chat.Chatter;
 import eu.ha3.util.property.simple.ConfigProperty;
 import eu.ha3.util.property.simple.PropertyException;
+import net.minecraft.event.ClickEvent;
+import net.minecraft.util.EnumChatFormatting;
 
 /**
  * The Update Notifier.
@@ -238,27 +237,27 @@ public class UpdateNotifier implements Updater {
 	private synchronized void reportUpdate(UpdatableIdentity id, HaddonVersion solvedMC, HaddonVersion solved, int count, int displayRemaining) {
 		Chatter chatter = notifiableHaddon.getChatter();
 		if (solvedMC.equals(HaddonVersion.NO_VERSION)) {
-			chatter.printChat(TextFormatting.GOLD, "An update is available for " + id.getHaddonName() + ": ver ", solved);
+			chatter.printChat(EnumChatFormatting.GOLD, "An update is available for " + id.getHaddonName() + ": ver ", solved);
 		} else if (solvedMC.equals(id.getPlatformVersion())) {
-			chatter.printChat(TextFormatting.GOLD, "An update is available for " + id.getHaddonName() + " for your version of " + id.getPlatformName() + ": ver ", solved);
+			chatter.printChat(EnumChatFormatting.GOLD, "An update is available for " + id.getHaddonName() + " for your version of " + id.getPlatformName() + ": ver ", solved);
 		} else {
-			chatter.printChat(TextFormatting.GOLD, "An update is available for " + id.getHaddonName());
-			chatter.printChatShort(TextFormatting.GOLD, "for ", TextFormatting.GOLD, TextFormatting.ITALIC, "another",
-					                TextFormatting.GOLD, " version of " + id.getPlatformName() + ": ");
-			chatter.printChatShort(TextFormatting.GOLD, "ver ", solved, TextFormatting.GOLD, " for ver ", solvedMC, TextFormatting.GOLD, ".");
+			chatter.printChat(EnumChatFormatting.GOLD, "An update is available for " + id.getHaddonName());
+			chatter.printChatShort(EnumChatFormatting.GOLD, "for ", EnumChatFormatting.GOLD, EnumChatFormatting.ITALIC, "another",
+					                EnumChatFormatting.GOLD, " version of " + id.getPlatformName() + ": ");
+			chatter.printChatShort(EnumChatFormatting.GOLD, "ver ", solved, EnumChatFormatting.GOLD, " for ver ", solvedMC, EnumChatFormatting.GOLD, ".");
 		}
 		if(count > 0) {
-		    chatter.printChatShort(TextFormatting.GOLD, "You're ", TextFormatting.WHITE, count, TextFormatting.GOLD, " major version" + (count > 1 ? "s" : "") + " late.");
+		    chatter.printChatShort(EnumChatFormatting.GOLD, "You're ", EnumChatFormatting.WHITE, count, EnumChatFormatting.GOLD, " major version" + (count > 1 ? "s" : "") + " late.");
 		}
-		chatter.printChatShort(TextFormatting.UNDERLINE, new ClickEvent(ClickEvent.Action.OPEN_URL, id.getHaddonAddress()), id.getHaddonAddress());
+		chatter.printChatShort(EnumChatFormatting.UNDERLINE, new ClickEvent(ClickEvent.Action.OPEN_URL, id.getHaddonAddress()), id.getHaddonAddress());
 		
 		if (displayRemaining > 0) {
 			chatter.printChatShort(
-					TextFormatting.GRAY, "This message will display ",
-					TextFormatting.WHITE, displayRemaining,
-					TextFormatting.GRAY, " more time" + (displayRemaining > 1 ? "s" : "") + ".");
+					EnumChatFormatting.GRAY, "This message will display ",
+					EnumChatFormatting.WHITE, displayRemaining,
+					EnumChatFormatting.GRAY, " more time" + (displayRemaining > 1 ? "s" : "") + ".");
 		} else {
-			chatter.printChatShort(TextFormatting.GRAY, "You won't be notified anymore unless a newer version comes out.");
+			chatter.printChatShort(EnumChatFormatting.GRAY, "You won't be notified anymore unless a newer version comes out.");
 		}
 	}
 	

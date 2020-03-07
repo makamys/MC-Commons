@@ -6,20 +6,20 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.profiler.Profiler;
+import net.minecraft.util.Timer;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import eu.ha3.mc.haddon.forge.mixin.IMinecraft;
 import eu.ha3.mc.haddon.Haddon;
 import eu.ha3.mc.haddon.OperatorCaster;
@@ -50,26 +50,21 @@ public class ForgeBase implements OperatorCaster
     private boolean wasInGame;
     
     public ForgeBase(Haddon haddon) {
-        if(MixinLoaderForge.hasInitializedSuccessfully()) {
-            this.haddon = haddon;
-            suTick = haddon instanceof SupportsTickEvents;
-            suFrame = haddon instanceof SupportsFrameEvents;
-            suFrameP = haddon instanceof SupportsPlayerFrameEvents;
-            suInGame = haddon instanceof SupportsInGameChangeEvents;
-            
-            shouldTick = suTick || suFrame;
-            
-            haddon.setUtility(new HaddonUtilityImpl() {
-                @Override
-                public long getClientTick() {
-                    return getTicks();
-                }
-            });
-            haddon.setOperator(this);
-        } else {
-            this.haddon = null;
-            shouldTick = suTick = suFrame = suFrameP = suInGame = false;
-        }
+        this.haddon = haddon;
+        suTick = haddon instanceof SupportsTickEvents;
+        suFrame = haddon instanceof SupportsFrameEvents;
+        suFrameP = haddon instanceof SupportsPlayerFrameEvents;
+        suInGame = haddon instanceof SupportsInGameChangeEvents;
+        
+        shouldTick = suTick || suFrame;
+        
+        haddon.setUtility(new HaddonUtilityImpl() {
+            @Override
+            public long getClientTick() {
+                return getTicks();
+            }
+        });
+        haddon.setOperator(this);
     }
 
     @EventHandler
@@ -86,15 +81,15 @@ public class ForgeBase implements OperatorCaster
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent event)
     {
-        boolean clock = ticksSinceLastRender > 0;
-        ticksSinceLastRender = 0;
+        Minecraft mc = (Minecraft)Minecraft.getMinecraft();
+        Timer mcTimer = ((IMinecraft)mc).getTimer();
+        if (mcTimer == null) return;
         
-        Minecraft mc = Minecraft.getMinecraft();
+        float partialTicks = mcTimer.renderPartialTicks;
+        boolean clock = mcTimer.elapsedTicks > 0;
         
-        float partialTicks = mc.isGamePaused() ? ((IMinecraft)mc).renderPartialTicksPaused() : mc.getRenderPartialTicks();
-        
-        Entity renderViewEntity = mc.getRenderViewEntity();
-        boolean inGame = renderViewEntity != null && renderViewEntity.world != null;
+        Entity renderViewEntity = mc.renderViewEntity;
+        boolean inGame = renderViewEntity != null && renderViewEntity.worldObj != null;
         
         onTickLiteLoaderStyle(mc, partialTicks, inGame, clock);
     }
@@ -109,7 +104,7 @@ public class ForgeBase implements OperatorCaster
         
         if (!shouldTick || !inGame) return;
         
-        Profiler p = Minecraft.getMinecraft().profiler;
+        Profiler p = Minecraft.getMinecraft().mcProfiler;
         List<String> profilerSections = ProfilerHelper.goToRoot(p);
         p.startSection(haddon.getIdentity().getHaddonName());
         
@@ -137,13 +132,10 @@ public class ForgeBase implements OperatorCaster
     @EventHandler
     public void init(FMLInitializationEvent event, String modid, String name, String version)
     {   
-        if(MixinLoaderForge.hasInitializedSuccessfully()) {
-            MinecraftForge.EVENT_BUS.register(this);
-            
-            haddon.onLoad();
-        } else {
-            System.out.println("Cancelled loading " + name + " (" + modid + " " + version + "), because the Haddon mixins failed to load.");
-        }
+        //MinecraftForge.EVENT_BUS.register(this);
+        FMLCommonHandler.instance().bus().register(this);
+        
+        haddon.onLoad();
     }
 
     @Override
