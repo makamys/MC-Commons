@@ -42,6 +42,8 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
 				e.printStackTrace();
 				revert();
 			}
+		} else { // create config file with default settings
+		    save();
 		}
 		return false;
 	}
