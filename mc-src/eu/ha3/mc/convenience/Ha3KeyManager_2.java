@@ -31,7 +31,7 @@ public class Ha3KeyManager_2 implements SupportsTickEvents {
 	@Override
 	public void onTick() {
 		for (KeyBinding bind : keys.keySet()) {
-			if (bind.isPressed())
+			if (bind.getIsKeyPressed())
 			{
 				int oldVal = states.get(bind);
 				states.put(bind, oldVal + 1);
