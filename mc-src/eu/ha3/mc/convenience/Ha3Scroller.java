@@ -53,7 +53,7 @@ public abstract class Ha3Scroller {
 	}
 	
 	public void start() {
-		if (isRunning) {
+		if (!isRunning) {
 			isRunning = true;
 			pitchBase = minecraft.player.rotationPitch;
 			doStart();
@@ -61,7 +61,7 @@ public abstract class Ha3Scroller {
 	}
 	
 	public void stop() {
-		if (!isRunning) {
+		if (isRunning) {
 			isRunning = false;
 			doStop();
 		}
