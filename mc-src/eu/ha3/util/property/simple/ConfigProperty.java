@@ -5,11 +5,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collections;
-import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+
 import java.util.Properties;
-import java.util.TreeSet;
 
 import com.google.common.io.Files;
 
@@ -17,6 +20,8 @@ import eu.ha3.util.property.contract.ConfigSource;
 
 public class ConfigProperty extends VersionnableProperty implements ConfigSource {
 	private String path;
+	
+	private Map<String, String> descriptionMap = new HashMap<String, String>();
 	
 	@Override
 	public void setSource(String source) {
@@ -53,20 +58,32 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
 		try {
 			File userFile = new File(this.path);
 			Files.createParentDirs(userFile);
-			Properties props = new Properties() {
-				@Override
-				public synchronized Enumeration<Object> keys() {
-					return Collections.enumeration(new TreeSet<Object>(super.keySet()));
-				}
-			};
-			for (Entry<String, String> property : getAllProperties().entrySet()) {
-				props.setProperty(property.getKey(), property.getValue());
+
+			try(FileWriter writer = new FileWriter(userFile)){
+			    
+			    for(String k : getAllProperties().keySet().stream().sorted().collect(Collectors.toList())) {
+			        String v = getString(k);
+			        
+			        if(descriptionMap.containsKey(k)) {
+                        for(String descriptionLine : descriptionMap.get(k).split("\n")) {
+                            writer.write("# " + descriptionLine + "\n");
+                        }
+                    }
+			        writer.write(k + "=" + v + "\n\n");
+			    }
+			} catch(IOException e) {
+			    LogManager.getLogger("matmos").error("Failed to save config: " + e);
 			}
-			props.store(new FileWriter(userFile), "");
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public void setProperty(String name, Object o, String description) {
+	    super.setProperty(name, o);
+	    
+	    descriptionMap.put(name, description);
 	}
 }
