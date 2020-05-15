@@ -6,10 +6,16 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.profiler.Profiler;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Timer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 
@@ -21,14 +27,18 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import eu.ha3.mc.haddon.forge.mixin.IMinecraft;
+import eu.ha3.matmos.util.BlockPos;
+import eu.ha3.matmos.util.MAtUtil;
 import eu.ha3.mc.haddon.Haddon;
 import eu.ha3.mc.haddon.OperatorCaster;
 import eu.ha3.mc.haddon.implem.HaddonUtilityImpl;
 import eu.ha3.mc.haddon.implem.ProfilerHelper;
 import eu.ha3.mc.haddon.supporting.SupportsInGameChangeEvents;
+import eu.ha3.mc.haddon.supporting.SupportsBlockChangeEvents;
 import eu.ha3.mc.haddon.supporting.SupportsFrameEvents;
 import eu.ha3.mc.haddon.supporting.SupportsPlayerFrameEvents;
 import eu.ha3.mc.haddon.supporting.SupportsTickEvents;
+import eu.ha3.mc.haddon.supporting.SupportsBlockChangeEvents.ClickType;
 
 
 public class ForgeBase implements OperatorCaster
@@ -41,6 +51,7 @@ public class ForgeBase implements OperatorCaster
     protected final boolean suFrame;
     protected final boolean suFrameP;
     protected final boolean suInGame;
+    protected final boolean suBlockChange;
     
     protected int tickCounter;
     protected boolean enableTick;
@@ -55,6 +66,7 @@ public class ForgeBase implements OperatorCaster
         suFrame = haddon instanceof SupportsFrameEvents;
         suFrameP = haddon instanceof SupportsPlayerFrameEvents;
         suInGame = haddon instanceof SupportsInGameChangeEvents;
+        suBlockChange = haddon instanceof SupportsBlockChangeEvents;
         
         shouldTick = suTick || suFrame;
         
@@ -132,10 +144,27 @@ public class ForgeBase implements OperatorCaster
     @EventHandler
     public void init(FMLInitializationEvent event, String modid, String name, String version)
     {   
-        //MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(this);
         FMLCommonHandler.instance().bus().register(this);
         
         haddon.onLoad();
+    }
+    
+    @SubscribeEvent
+    public void onBlock(BlockEvent event) {
+        if(suBlockChange) {
+            Block oldBlock = null, newBlock = null;
+            if(event instanceof PlaceEvent) {
+                oldBlock = Block.getBlockById(0);
+                newBlock = event.block;
+            } else if(event instanceof BreakEvent) {
+                oldBlock = event.block;
+                newBlock = MAtUtil.getBlockAt(new BlockPos(event.x, event.y, event.z));
+            }
+            if(oldBlock != null) {
+                ((SupportsBlockChangeEvents)haddon).onBlockChanged(event.x, event.y, event.z, oldBlock, newBlock);
+            }
+        }
     }
 
     @Override
