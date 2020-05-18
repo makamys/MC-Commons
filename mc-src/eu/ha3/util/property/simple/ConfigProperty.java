@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +21,8 @@ import eu.ha3.util.property.contract.ConfigSource;
 
 public class ConfigProperty extends VersionnableProperty implements ConfigSource {
 	private String path;
+	
+	private String globalDescription = "";
 	
 	private Map<String, String> descriptionMap = new HashMap<String, String>();
 	
@@ -61,13 +64,16 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
 
 			try(FileWriter writer = new FileWriter(userFile)){
 			    
+			    if(!globalDescription.isEmpty()) {
+			        writeComment(globalDescription, writer);
+			        writer.write("\n");
+			    }
+			    
 			    for(String k : getAllProperties().keySet().stream().sorted().collect(Collectors.toList())) {
 			        String v = getString(k);
 			        
 			        if(descriptionMap.containsKey(k)) {
-                        for(String descriptionLine : descriptionMap.get(k).split("\n")) {
-                            writer.write("# " + descriptionLine + "\n");
-                        }
+                        writeComment(descriptionMap.get(k), writer);
                     }
 			        writer.write(k + "=" + v + "\n\n");
 			    }
@@ -81,9 +87,19 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
 		return false;
 	}
 	
+	private void writeComment(String desc, Writer writer) throws IOException {
+	    for(String descriptionLine : desc.split("\n")) {
+            writer.write("# " + descriptionLine + "\n");
+        }
+	}
+	
 	public void setProperty(String name, Object o, String description) {
 	    super.setProperty(name, o);
 	    
 	    descriptionMap.put(name, description);
+	}
+	
+	public void setGlobalDescription(String globalDesc) {
+	    this.globalDescription = globalDesc != null ? globalDesc : "";
 	}
 }
