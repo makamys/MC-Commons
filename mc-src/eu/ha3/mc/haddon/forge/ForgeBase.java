@@ -27,8 +27,6 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import eu.ha3.mc.haddon.forge.mixin.IMinecraft;
-import eu.ha3.matmos.util.BlockPos;
-import eu.ha3.matmos.util.MAtUtil;
 import eu.ha3.mc.haddon.Haddon;
 import eu.ha3.mc.haddon.OperatorCaster;
 import eu.ha3.mc.haddon.implem.HaddonUtilityImpl;
@@ -159,7 +157,7 @@ public class ForgeBase implements OperatorCaster
                 newBlock = event.block;
             } else if(event instanceof BreakEvent) {
                 oldBlock = event.block;
-                newBlock = MAtUtil.getBlockAt(new BlockPos(event.x, event.y, event.z));
+                newBlock = Minecraft.getMinecraft().theWorld.getBlock(event.x, event.y, event.z);
             }
             if(oldBlock != null) {
                 ((SupportsBlockChangeEvents)haddon).onBlockChanged(event.x, event.y, event.z, oldBlock, newBlock);
