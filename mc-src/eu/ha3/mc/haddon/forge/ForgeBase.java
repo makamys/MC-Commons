@@ -16,6 +16,8 @@ import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.logging.log4j.Logger;
 
@@ -36,6 +38,7 @@ import eu.ha3.mc.haddon.supporting.SupportsBlockChangeEvents;
 import eu.ha3.mc.haddon.supporting.SupportsFrameEvents;
 import eu.ha3.mc.haddon.supporting.SupportsPlayerFrameEvents;
 import eu.ha3.mc.haddon.supporting.SupportsTickEvents;
+import eu.ha3.mc.haddon.supporting.event.BlockChangeEvent;
 import eu.ha3.mc.haddon.supporting.SupportsBlockChangeEvents.ClickType;
 
 
@@ -57,6 +60,8 @@ public class ForgeBase implements OperatorCaster
     
     private int ticksSinceLastRender = 0;
     private boolean wasInGame;
+    
+    private Queue<BlockChangeEvent> blockEventQueue = new LinkedBlockingQueue<>();
     
     public ForgeBase(Haddon haddon) {
         this.haddon = haddon;
@@ -124,6 +129,14 @@ public class ForgeBase implements OperatorCaster
             }
             tickCounter++;
         }
+        
+        if(suBlockChange) {
+            while(!blockEventQueue.isEmpty()) {
+                ((SupportsBlockChangeEvents)haddon).onBlockChanged(blockEventQueue.remove());
+            }
+            
+        }
+        
         if (enableFrame) {
             if (suFrame) {
                 ((SupportsFrameEvents)haddon).onFrame(partialTicks);
@@ -150,6 +163,8 @@ public class ForgeBase implements OperatorCaster
     
     @SubscribeEvent
     public void onBlock(BlockEvent event) {
+        if (!shouldTick) return;
+        
         if(suBlockChange) {
             Block oldBlock = null, newBlock = null;
             if(event instanceof PlaceEvent) {
@@ -160,7 +175,8 @@ public class ForgeBase implements OperatorCaster
                 newBlock = Minecraft.getMinecraft().theWorld.getBlock(event.x, event.y, event.z);
             }
             if(oldBlock != null) {
-                ((SupportsBlockChangeEvents)haddon).onBlockChanged(event.x, event.y, event.z, oldBlock, newBlock);
+                // this is on server side! we must send it to client side and process it there
+                blockEventQueue.add(new BlockChangeEvent(event.x, event.y, event.z, oldBlock, newBlock));
             }
         }
     }

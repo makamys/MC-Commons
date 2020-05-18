@@ -1,6 +1,6 @@
 package eu.ha3.mc.haddon.supporting;
 
-import net.minecraft.block.Block;
+import eu.ha3.mc.haddon.supporting.event.BlockChangeEvent;
 
 public interface SupportsBlockChangeEvents {
     
@@ -10,6 +10,6 @@ public interface SupportsBlockChangeEvents {
         RIGHT_CLICK_BLOCK
     }
     
-    void onBlockChanged(int x, int y, int z, Block oldBlock, Block newBlock);
+    void onBlockChanged(BlockChangeEvent event);
     
 }
