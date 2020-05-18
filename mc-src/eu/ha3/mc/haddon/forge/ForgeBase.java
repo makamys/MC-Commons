@@ -8,6 +8,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Timer;
+import net.minecraftforge.client.event.sound.PlaySoundEvent17;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -37,6 +38,7 @@ import eu.ha3.mc.haddon.supporting.SupportsInGameChangeEvents;
 import eu.ha3.mc.haddon.supporting.SupportsBlockChangeEvents;
 import eu.ha3.mc.haddon.supporting.SupportsFrameEvents;
 import eu.ha3.mc.haddon.supporting.SupportsPlayerFrameEvents;
+import eu.ha3.mc.haddon.supporting.SupportsSoundEvents;
 import eu.ha3.mc.haddon.supporting.SupportsTickEvents;
 import eu.ha3.mc.haddon.supporting.event.BlockChangeEvent;
 import eu.ha3.mc.haddon.supporting.SupportsBlockChangeEvents.ClickType;
@@ -52,6 +54,7 @@ public class ForgeBase implements OperatorCaster
     protected final boolean suFrame;
     protected final boolean suFrameP;
     protected final boolean suInGame;
+    protected final boolean suSound;
     protected final boolean suBlockChange;
     
     protected int tickCounter;
@@ -70,6 +73,7 @@ public class ForgeBase implements OperatorCaster
         suFrameP = haddon instanceof SupportsPlayerFrameEvents;
         suInGame = haddon instanceof SupportsInGameChangeEvents;
         suBlockChange = haddon instanceof SupportsBlockChangeEvents;
+        suSound = haddon instanceof SupportsSoundEvents;
         
         shouldTick = suTick || suFrame;
         
@@ -107,6 +111,17 @@ public class ForgeBase implements OperatorCaster
         boolean inGame = renderViewEntity != null && renderViewEntity.worldObj != null;
         
         onTickLiteLoaderStyle(mc, partialTicks, inGame, clock);
+    }
+    
+    @SubscribeEvent
+    public void onSoundEvent(PlaySoundEvent17 event) {
+        if (!shouldTick) return;
+        
+        if(suSound) {
+            if(!((SupportsSoundEvents)haddon).onSound(event.sound, event.name, event.manager)) {
+                event.result = null;
+            }
+        }
     }
     
     private void onTickLiteLoaderStyle(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
