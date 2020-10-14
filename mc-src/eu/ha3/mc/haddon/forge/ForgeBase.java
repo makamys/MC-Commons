@@ -29,7 +29,6 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
-import eu.ha3.mc.haddon.forge.mixin.IMinecraft;
 import eu.ha3.mc.haddon.Haddon;
 import eu.ha3.mc.haddon.OperatorCaster;
 import eu.ha3.mc.haddon.implem.HaddonUtilityImpl;
@@ -101,7 +100,7 @@ public class ForgeBase implements OperatorCaster
     public void onRenderTick(RenderTickEvent event)
     {
         Minecraft mc = (Minecraft)Minecraft.getMinecraft();
-        Timer mcTimer = ((IMinecraft)mc).getTimer();
+        Timer mcTimer = mc.timer;
         if (mcTimer == null) return;
         
         float partialTicks = mcTimer.renderPartialTicks;
