@@ -32,7 +32,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.logging.log4j.Logger;
 
-import eu.ha3.mc.haddon.forge.mixin.IMinecraft;
 import eu.ha3.mc.haddon.Haddon;
 import eu.ha3.mc.haddon.OperatorCaster;
 import eu.ha3.mc.haddon.implem.HaddonUtilityImpl;
@@ -108,7 +107,7 @@ public class ForgeBase implements OperatorCaster
         
         Minecraft mc = Minecraft.getMinecraft();
         
-        float partialTicks = mc.isGamePaused() ? ((IMinecraft)mc).renderPartialTicksPaused() : mc.getRenderPartialTicks();
+        float partialTicks = mc.isGamePaused() ? mc.renderPartialTicksPaused : mc.getRenderPartialTicks();
         
         Entity renderViewEntity = mc.getRenderViewEntity();
         boolean inGame = renderViewEntity != null && renderViewEntity.world != null;
