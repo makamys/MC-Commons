@@ -45,6 +45,7 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
                     setProperty(entry.getKey().toString(), entry.getValue().toString());
                 }
                 commit();
+                save(); // save to restore any potentially missing config options
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();
