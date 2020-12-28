@@ -179,7 +179,7 @@ public class ForgeBase implements OperatorCaster
     
     @SubscribeEvent
     public void onBlock(BlockEvent event) {
-        if (!shouldTick) return;
+        if (!shouldTick || Minecraft.getMinecraft().world == null) return;
         
         if(suBlockChange) {
             Block oldBlock = null, newBlock = null;
