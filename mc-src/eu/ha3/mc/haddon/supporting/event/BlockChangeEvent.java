@@ -8,7 +8,7 @@ public class BlockChangeEvent {
     public int z;
     public Block oldBlock;
     public Block newBlock;
-    
+
     public BlockChangeEvent(int x, int y, int z, Block oldBlock, Block newBlock) {
         this.x = x;
         this.y = y;

@@ -13,14 +13,15 @@ public class TempForgeKey extends ForgeBase implements OperatorKeyer {
     public TempForgeKey(Haddon haddon) {
         super(haddon);
     }
-    
+
     @Override
     public void addKeyBinding(KeyBinding bind) {
         ClientRegistry.registerKeyBinding(bind);
     }
-    
+
     @Override
     public void removeKeyBinding(KeyBinding bind) {
-        Minecraft.getMinecraft().gameSettings.keyBindings = ArrayUtils.removeElement(Minecraft.getMinecraft().gameSettings.keyBindings, bind);
+        Minecraft.getMinecraft().gameSettings.keyBindings = ArrayUtils
+                .removeElement(Minecraft.getMinecraft().gameSettings.keyBindings, bind);
     }
 }

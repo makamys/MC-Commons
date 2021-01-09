@@ -6,41 +6,41 @@ import eu.ha3.mc.haddon.Utility;
 
 public abstract class HaddonImpl implements Haddon {
 
-	private Utility utility;
-	private Operator operator;
+    private Utility utility;
+    private Operator operator;
 
-	@Override
-	public Utility getUtility() {
-		return utility;
-	}
-
-	@Override
-	public void setUtility(Utility util) {
-		utility = util;
-	}
-
-	@SuppressWarnings("unchecked")
     @Override
-	public <T extends Operator> T getOperator() {
-		return (T)operator;
-	}
+    public Utility getUtility() {
+        return utility;
+    }
 
-	@Override
-	public void setOperator(Operator op) {
-		operator = op;
-	}
+    @Override
+    public void setUtility(Utility util) {
+        utility = util;
+    }
 
-	/**
-	 * Convenience shortener for getUtility()
-	 */
-	public Utility util() {
-		return getUtility();
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends Operator> T getOperator() {
+        return (T) operator;
+    }
 
-	/**
-	 * Convenience shortener for getCaster()
-	 */
-	public <T extends Operator> T op() {
-		return this.<T>getOperator();
-	}
+    @Override
+    public void setOperator(Operator op) {
+        operator = op;
+    }
+
+    /**
+     * Convenience shortener for getUtility()
+     */
+    public Utility util() {
+        return getUtility();
+    }
+
+    /**
+     * Convenience shortener for getCaster()
+     */
+    public <T extends Operator> T op() {
+        return this.<T>getOperator();
+    }
 }

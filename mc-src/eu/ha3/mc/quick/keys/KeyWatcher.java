@@ -11,27 +11,27 @@ import eu.ha3.mc.haddon.supporting.SupportsTickEvents;
  * Watches for key changes and notifies the given mod
  */
 public class KeyWatcher implements SupportsTickEvents {
-	private final SupportsKeyEvents watcher;
-	private final List<KeyBinding> keys;
-	
-	public KeyWatcher(SupportsKeyEvents keyWatcher) {
-		watcher = keyWatcher;
-		keys = new ArrayList<KeyBinding>();
-	}
-	
-	/**
-	 * Adds a new keybinding to watch for changes.
-	 */
-	public void add(KeyBinding key) {
-		keys.add(key);
-	}
-	
-	@Override
-	public void onTick() {
-		for (KeyBinding key : keys) {
-			if (key.isPressed()) {
-				watcher.onKey(key);
-			}
-		}
-	}
+    private final SupportsKeyEvents watcher;
+    private final List<KeyBinding> keys;
+
+    public KeyWatcher(SupportsKeyEvents keyWatcher) {
+        watcher = keyWatcher;
+        keys = new ArrayList<KeyBinding>();
+    }
+
+    /**
+     * Adds a new keybinding to watch for changes.
+     */
+    public void add(KeyBinding key) {
+        keys.add(key);
+    }
+
+    @Override
+    public void onTick() {
+        for (KeyBinding key : keys) {
+            if (key.isPressed()) {
+                watcher.onKey(key);
+            }
+        }
+    }
 }
