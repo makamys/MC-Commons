@@ -11,9 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
-
-import java.util.Properties;
 
 import com.google.common.io.Files;
 
@@ -36,14 +35,16 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
         File file = new File(path);
         if (file.exists()) {
             try {
-                Reader reader = new FileReader(file);
-
-                Properties props = new Properties();
-                props.load(reader);
-
-                for (Entry<Object, Object> entry : props.entrySet()) {
-                    setProperty(entry.getKey().toString(), entry.getValue().toString());
-                }
+                IOUtils.readLines(new FileReader(file)).forEach(l -> {
+                    if (!l.startsWith("#") && !l.isEmpty()) {
+                        if (l.contains("=")) {
+                            String[] parts = l.split("=");
+                            setProperty(parts[0], parts.length > 1 ? parts[1] : "");
+                        } else {
+                            LogManager.getLogger("haddon").warn("Ignoring malformed line in " + file.getName() + ": " + l);
+                        }
+                    }
+                });
                 commit();
                 save(); // save to restore any potentially missing config options
                 return true;
@@ -79,7 +80,7 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
                     writer.write(k + "=" + v + "\n\n");
                 }
             } catch (IOException e) {
-                LogManager.getLogger("matmos").error("Failed to save config: " + e);
+                LogManager.getLogger("haddon").error("Failed to save config: " + e);
             }
             return true;
         } catch (IOException e) {
