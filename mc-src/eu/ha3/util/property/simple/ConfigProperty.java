@@ -80,7 +80,7 @@ public class ConfigProperty extends VersionnableProperty implements ConfigSource
                     writer.write(k + "=" + v + "\n\n");
                 }
             } catch (IOException e) {
-                LogManager.getLogger("matmos").error("Failed to save config: " + e);
+                LogManager.getLogger("haddon").error("Failed to save config: " + e);
             }
             return true;
         } catch (IOException e) {
