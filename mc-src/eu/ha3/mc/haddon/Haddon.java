@@ -1,33 +1,33 @@
 package eu.ha3.mc.haddon;
 
 public interface Haddon {
-	/**
-	 * Triggered during the addon loading process.
-	 */
-	void onLoad();
+    /**
+     * Triggered during the addon loading process.
+     */
+    void onLoad();
 
-	/**
-	 * Returns the utility object dedicated to this haddon.
-	 */
-	Utility getUtility();
+    /**
+     * Returns the utility object dedicated to this haddon.
+     */
+    Utility getUtility();
 
-	/**
-	 * Sets the utility object dedicated to this haddon.
-	 */
-	void setUtility(Utility utility);
+    /**
+     * Sets the utility object dedicated to this haddon.
+     */
+    void setUtility(Utility utility);
 
-	/**
-	 * Returns the caster object dedicated to this haddon.
-	 */
-	<T extends Operator> T getOperator();
+    /**
+     * Returns the caster object dedicated to this haddon.
+     */
+    <T extends Operator> T getOperator();
 
-	/**
-	 * Sets the caster object dedicated to this haddon.
-	 */
-	void setOperator(Operator operator);
+    /**
+     * Sets the caster object dedicated to this haddon.
+     */
+    void setOperator(Operator operator);
 
-	/**
-	 * Returns the identity of this Haddon.
-	 */
-	Identity getIdentity();
+    /**
+     * Returns the identity of this Haddon.
+     */
+    Identity getIdentity();
 }

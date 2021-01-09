@@ -10,24 +10,24 @@ import java.util.Properties;
 import eu.ha3.util.property.contract.ConfigInputStream;
 
 public class InputStreamConfigProperty extends VersionnableProperty implements ConfigInputStream {
-	
-	@Override
-	public boolean loadStream(InputStream stream) {
-		try {
-			Reader reader = new InputStreamReader(stream);
-			
-			Properties props = new Properties();
-			props.load(reader);
-			
-			for (Entry<Object, Object> entry : props.entrySet()) {
-				setProperty(entry.getKey().toString(), entry.getValue().toString());
-			}
-			commit();
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			revert();
-		}
-		return false;
-	}
+
+    @Override
+    public boolean loadStream(InputStream stream) {
+        try {
+            Reader reader = new InputStreamReader(stream);
+
+            Properties props = new Properties();
+            props.load(reader);
+
+            for (Entry<Object, Object> entry : props.entrySet()) {
+                setProperty(entry.getKey().toString(), entry.getValue().toString());
+            }
+            commit();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            revert();
+        }
+        return false;
+    }
 }

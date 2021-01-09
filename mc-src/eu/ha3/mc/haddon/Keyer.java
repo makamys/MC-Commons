@@ -7,7 +7,7 @@ import net.minecraft.client.settings.KeyBinding;
  *
  */
 public interface Keyer {
-	public void addKeyBinding(KeyBinding bind);
-	
-	public void removeKeyBinding(KeyBinding bind);
+    public void addKeyBinding(KeyBinding bind);
+
+    public void removeKeyBinding(KeyBinding bind);
 }

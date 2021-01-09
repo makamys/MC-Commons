@@ -7,5 +7,5 @@ package eu.ha3.mc.haddon;
  * 
  */
 public interface OperatorCaster extends Operator, Caster {
-	
+
 }

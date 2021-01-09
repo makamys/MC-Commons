@@ -8,7 +8,7 @@ import eu.ha3.mc.haddon.implem.HaddonVersion;
 
 @FunctionalInterface
 public interface UpdateCallback {
-    
+
     HaddonVersion decidePlatformVersion(Map<HaddonVersion, Pair<HaddonVersion, Map<String, String>>> latestPerPlatform);
-    
+
 }
